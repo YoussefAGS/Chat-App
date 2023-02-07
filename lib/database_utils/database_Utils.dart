@@ -39,6 +39,10 @@ class DatabaseUtils {
 
     return rooms.docs.map((e) =>e.data()).toList();
   }
+  static Future<QuerySnapshot<Room>> readRoomFormFirebase2()  {
+
+    return getRoomCollection().get();
+  }
   //message
   static CollectionReference<Message> getMessageCollection(String roomId) {
     return getRoomCollection().doc(roomId).collection("Messages").withConverter<Message>(

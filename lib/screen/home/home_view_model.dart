@@ -14,7 +14,8 @@ class HomeViewModel extends BaseViewModel<HomeNavigator>{
       navigator!.showMessage(error.toString());
     });
 
-  }
+   }
+ 
 
 
 }

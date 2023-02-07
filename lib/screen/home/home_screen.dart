@@ -2,11 +2,14 @@ import 'package:chat/base.dart';
 import 'package:chat/screen/add_rome/add_room_screen.dart';
 import 'package:chat/screen/home/room_widgit.dart';
 import 'package:chat/screen/login/login-view.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../database_utils/database_Utils.dart';
+import '../../models/Room.dart';
 import 'home_navigator.dart';
 import 'home_view_model.dart';
 
@@ -64,22 +67,28 @@ class _HomeScreenState extends BaseView<HomeScreen, HomeViewModel>
             },
             child: Icon(Icons.add,color: Colors.white,),
           ),
-          body: Container(
-            child: Consumer<HomeViewModel>(
-              builder: (c, homeViewModel, o) {
+          body: FutureBuilder<QuerySnapshot<Room>>(
+              future: DatabaseUtils.readRoomFormFirebase2(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return Text('something wrong');
+                }
+                List<Room> rooms =
+                    snapshot.data?.docs.map((task) => task.data()).toList() ?? [];
+
                 return GridView.builder(
-                    itemCount: homeViewModel.rooms.length,
+                    itemCount:rooms.length,
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       mainAxisSpacing: 12,
                       crossAxisSpacing: 12,
                     ),
-                    itemBuilder: (context, index) =>RoomWidget(homeViewModel.rooms[index])
+                    itemBuilder: (context, index) =>RoomWidget(rooms[index])
                 );
-
-              },
-            ),
-          ),
+              }),
         ),
       ),
     );
@@ -90,3 +99,4 @@ class _HomeScreenState extends BaseView<HomeScreen, HomeViewModel>
     return HomeViewModel();
   }
 }
+
